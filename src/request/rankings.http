@@ -1,0 +1,13 @@
+###
+GET http://localhost:5000/api/rankings/697a2725e4d397ddbd2d6bdf
+
+###
+POST http://localhost:5000/api/rankings
+Content-Type: application/json
+
+{
+    "gameId": "697a2725e4d397ddbd2d6bdf",
+    "username": "Eminofalla10",
+    "score": 320000,
+    "platform": "Nintendo"
+}
