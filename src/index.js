@@ -7,6 +7,7 @@ import gameRouter from './routes/gameRoutes.js'
 import rankingRoutes from './routes/rankingRoutes.js'
 import commentRoutes from './routes/commentRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
+import userRouter from './routes/userRoutes.js'
 
 
 dotenv.config();
@@ -50,6 +51,7 @@ app.use('/api/games', gameRouter);
 app.use('/api/rankings', rankingRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/admin', adminRoutes)
+app.use('/api/auth', userRouter)
 
 
 const PORT = process.env.PORT || 5000;

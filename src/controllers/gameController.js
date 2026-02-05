@@ -13,7 +13,7 @@ const RETRO_PLATFORMS = [
   { id: 43,  name: "Game Boy Color", slug: "game-boy-color", system: "gbc" },
   { id: 24,  name: "Game Boy Advance", slug: "game-boy-advance", system: "gba" },
   { id: 9,   name: "Nintendo DS", slug: "nintendo-ds", system: "nds" },
-  { id: 167, name: "Sega Genesis", slug: "sega-genesis", system: "megadrive" },
+  { id: 167, name: "Sega Genesis", slug: "sega-genesis", system: "segaMD" },
   { id: 107, name: "Sega Saturn", slug: "sega-saturn", system: "saturn" },
   { id: 106, name: "Sega Dreamcast", slug: "sega-dreamcast", system: "dreamcast" },
   { id: 77,  name: "Game Gear", slug: "sega-game-gear", system: "gamegear" },
@@ -104,7 +104,7 @@ export const rateGame = async (req, res) => {
 
 //Upload games in Bd of SegaMD
 export const uploadGamesSega = async (req, res) => {
-  try {
+  try { 
     const itemID = 'retro-score-ksk-segaMD';
     const url = `https://archive.org/metadata/${itemID}`;
     const response = await axios.get(url);
@@ -124,18 +124,25 @@ export const uploadGamesSega = async (req, res) => {
         title: tituloLimpio,
         platform: 'Sega Genesis',
         platformId: '167',
-        system: 'megadrive',
+        system: 'segaMD',
         slug: slugify(tituloLimpio.replace(/_/g, ' '), { lower: true, strict: true, replacement: '-' }),
         firstLetter: tituloLimpio.charAt(0).toUpperCase(),
         romUrl: `/proxy-rom/download/${itemID}/${encodeURIComponent(rom.name)}`,
       };
     });
 
+    let count = 0;
     for (const juego of juegosNuevos) {
+      const exist = await Game.find({slug: juego.slug});
+      if(exist.length == 0) {
       await Game.updateOne({ title: juego.title }, { $set: juego }, { upsert: true });
+      count ++
+      }else {
+        console.log("El juego: " + juego.title + ", ya esxiste");
+      }
     }
 
-    res.json({ mensaje: `Sincronizados ${juegosNuevos.length} juegos de Sega.` });
+    res.json({ mensaje: `Sincronizados ${count} juegos de Sega.` });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
