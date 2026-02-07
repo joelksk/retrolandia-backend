@@ -19,7 +19,7 @@ export const login = async (req, res) => {
         { expiresIn: '24h' },
         (err, token) => {
             if (err) throw err;
-            res.json({ token });
+            res.json({token, userId: user._id, role: user.role});
         }
         );
     } catch (err) {
@@ -27,3 +27,23 @@ export const login = async (req, res) => {
     }
 }
 
+export const register = async (req, res) => {
+    const { username, password, role } = req.body;
+    try {
+        const exist = await User.findOne({username});
+        if(exist) return res.status(400).json({msg: 'Nombre de usuario existente, utilice otro por favor.'});
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = new User({
+            username,
+            password: hashedPassword,
+            role: role
+        })
+
+        await newUser.save();
+        return res.status(201).json(newUser);
+    } catch (error) {
+    res.status(400).json({ msg: error.message });
+    }
+}

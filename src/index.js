@@ -8,6 +8,8 @@ import rankingRoutes from './routes/rankingRoutes.js'
 import commentRoutes from './routes/commentRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
 import userRouter from './routes/userRoutes.js'
+import suggestionRouter from './routes/suggestionRoutes.js'
+import reportRouter from './routes/reportRoutes.js'
 
 
 dotenv.config();
@@ -50,8 +52,11 @@ app.get('/', (req, res) => {
 app.use('/api/games', gameRouter);
 app.use('/api/rankings', rankingRoutes);
 app.use('/api/comments', commentRoutes);
-app.use('/api/admin', adminRoutes)
-app.use('/api/auth', userRouter)
+app.use('/api/admin', adminRoutes);
+app.use('/api/auth', userRouter);
+app.use('/api/reports', reportRouter);
+app.use('/api/suggestions', suggestionRouter);
+
 
 
 const PORT = process.env.PORT || 5000;

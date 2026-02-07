@@ -1,5 +1,7 @@
 import PendingRanking from '../models/PendingRanking.js';
 import Ranking from '../models/Ranking.js';
+import Report from '../models/Report.js'
+import Suggestion from '../models/Suggestion.js'
 
 
 export const getPendingScores = async (req, res) => {
@@ -10,7 +12,6 @@ export const getPendingScores = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
 
 export const approveScore = async (req, res) => {
     try {
@@ -54,3 +55,39 @@ export const rejectScore = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const getReports = async (req, res) => {
+    try {
+        const reports = await Report.find().sort({ createdAt: 1 });
+        res.json(reports);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export const deleteReport = async (req, res) => {
+    try {
+        await Report.findByIdAndDelete(req.params.id);
+        res.json({ message: "Reporte eliminado" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export const getSuggestions = async (req, res) => {
+    try {
+        const suggestions = await Suggestion.find().sort({ createdAt: 1 });
+        res.json(suggestions);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export const deleteSuggestion = async (req, res) => {
+    try {
+        await Suggestion.findByIdAndDelete(req.params.id);
+        res.json({ message: "Reporte eliminado" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
