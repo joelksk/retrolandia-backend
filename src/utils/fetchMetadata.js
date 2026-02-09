@@ -17,9 +17,10 @@ const updateGameMetadata = async (gameId, gameTitle, platformId) => {
       
       const detailResp = await axios.get(`https://api.rawg.io/api/games/${data.id}?key=${process.env.RAWG_API_KEY}`);
       const detail = detailResp.data;
+      const textTranslated = translateDescription(detail.description_raw)
 
       await Game.findByIdAndUpdate(gameId, {
-        description: detail.description_raw,
+        description: textTranslated,
         releaseYear: detail.released ? detail.released.split('-')[0] : 'N/A',
         developer: detail.developers?.[0]?.name || 'Retro Classic',
         genre: detail.genres?.map(g => g.name) || [],
@@ -32,5 +33,26 @@ const updateGameMetadata = async (gameId, gameTitle, platformId) => {
     console.error(`Error con ${gameTitle}:`, error.message);
   }
 };
+
+const translateDescription = async (textEN) => {
+  try {
+    const res = await fetch("https://libretranslate.de/translate", {
+      method: "POST",
+      body: JSON.stringify({
+        q: textEN,
+        source: "en",
+        target: "es",
+        format: "text"
+      }),
+      headers: { "Content-Type": "application/json" }
+    });
+
+    const data = await res.json();
+    return data.translatedText;
+  } catch (error) {
+    console.error("Error traduciendo:", error);
+    return textEN;
+  }
+}
 
 export default updateGameMetadata

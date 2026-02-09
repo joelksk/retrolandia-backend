@@ -156,7 +156,7 @@ export const uploadGamesNes = async (req, res) => {
     const response = await axios.get(url);
     
     const roms = response.data.files.filter(f => 
-      f.name.endsWith('.nes')
+      f.name.endsWith('.neogeo')
     ).slice(0, 20);
 
     const juegosNuevos = roms.map(rom => {
@@ -177,8 +177,61 @@ export const uploadGamesNes = async (req, res) => {
       };
     });
 
+    let count = 0;
     for (const juego of juegosNuevos) {
-      await Game.updateOne({ title: juego.title }, { $set: juego }, { upsert: true });
+      const exist = await Game.find({slug: juego.slug});
+        if(exist.length == 0) {
+        await Game.updateOne({ title: juego.title }, { $set: juego }, { upsert: true });
+        count ++
+        }else {
+          console.log("El juego: " + juego.title + ", ya esxiste");
+      }
+    }
+
+    res.json({ mensaje: `Sincronizados ${juegosNuevos.length} juegos de Nintendo.` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+}
+
+export const uploadGamesSnes = async (req, res) => {
+  try {
+    const itemID = 'retro-score-ksk-snes';
+    const url = `https://archive.org/metadata/${itemID}`;
+    const response = await axios.get(url);
+    
+    const roms = response.data.files.filter(f => 
+      f.name.endsWith('.snes')
+    ).slice(0, 20);
+
+    const juegosNuevos = roms.map(rom => {
+      const fileName = rom.name.split('/').pop();
+      const tituloLimpio = fileName
+        .replace('.snes', '')
+        .replace(/\(.*\)/g, '')
+        .trim();
+
+      return {
+        title: tituloLimpio,
+        platform: 'SNES',
+        platformId: '7',
+        system: 'snes',
+        slug: slugify(tituloLimpio.replace(/_/g, ' '), { lower: true, strict: true, replacement: '-' }),
+        firstLetter: tituloLimpio.charAt(0).toUpperCase(),
+        romUrl: `/proxy-rom/download/${itemID}/${encodeURIComponent(rom.name)}`,
+      };
+    });
+
+    let count = 0;
+    for (const juego of juegosNuevos) {
+      const exist = await Game.find({slug: juego.slug});
+        if(exist.length == 0) {
+        await Game.updateOne({ title: juego.title }, { $set: juego }, { upsert: true });
+        count ++
+        }else {
+          console.log("El juego: " + juego.title + ", ya esxiste");
+      }
     }
 
     res.json({ mensaje: `Sincronizados ${juegosNuevos.length} juegos de Nintendo.` });
