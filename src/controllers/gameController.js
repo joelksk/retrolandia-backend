@@ -120,12 +120,14 @@ export const uploadGamesSega = async (req, res) => {
         .replace(/\(.*\)/g, '')
         .trim();
 
+        const newSlug = slugify(tituloLimpio.replace(/_/g, ' '), { lower: true, strict: true, replacement: '-' });
+
       return {
         title: tituloLimpio,
         platform: 'Sega Genesis',
         platformId: '167',
         system: 'segaMD',
-        slug: slugify(tituloLimpio.replace(/_/g, ' '), { lower: true, strict: true, replacement: '-' }),
+        slug: newSlug + '-segaMD',
         firstLetter: tituloLimpio.charAt(0).toUpperCase(),
         romUrl: `/proxy-rom/download/${itemID}/${encodeURIComponent(rom.name)}`,
       };
@@ -133,7 +135,7 @@ export const uploadGamesSega = async (req, res) => {
 
     let count = 0;
     for (const juego of juegosNuevos) {
-      const exist = await Game.find({slug: juego.slug});
+      const exist = await Game.find({slug: juego.slug, system: 'segaMD'});
       if(exist.length == 0) {
       await Game.updateOne({ title: juego.title }, { $set: juego }, { upsert: true });
       count ++
@@ -156,7 +158,7 @@ export const uploadGamesNes = async (req, res) => {
     const response = await axios.get(url);
     
     const roms = response.data.files.filter(f => 
-      f.name.endsWith('.neogeo')
+      f.name.endsWith('.nes')
     ).slice(0, 20);
 
     const juegosNuevos = roms.map(rom => {
@@ -171,7 +173,7 @@ export const uploadGamesNes = async (req, res) => {
         platform: 'NES',
         platformId: '49',
         system: 'nes',
-        slug: slugify(tituloLimpio.replace(/_/g, ' '), { lower: true, strict: true, replacement: '-' }),
+        slug: slugify(tituloLimpio.replace(/_/g, ' '), { lower: true, strict: true, replacement: '-' }) + '-nes',
         firstLetter: tituloLimpio.charAt(0).toUpperCase(),
         romUrl: `/proxy-rom/download/${itemID}/${encodeURIComponent(rom.name)}`,
       };
@@ -179,7 +181,7 @@ export const uploadGamesNes = async (req, res) => {
 
     let count = 0;
     for (const juego of juegosNuevos) {
-      const exist = await Game.find({slug: juego.slug});
+      const exist = await Game.find({slug: juego.slug, system: 'nes'});
         if(exist.length == 0) {
         await Game.updateOne({ title: juego.title }, { $set: juego }, { upsert: true });
         count ++
@@ -217,7 +219,7 @@ export const uploadGamesSnes = async (req, res) => {
         platform: 'SNES',
         platformId: '7',
         system: 'snes',
-        slug: slugify(tituloLimpio.replace(/_/g, ' '), { lower: true, strict: true, replacement: '-' }),
+        slug: slugify(tituloLimpio.replace(/_/g, ' '), { lower: true, strict: true, replacement: '-' }) + '-snes',
         firstLetter: tituloLimpio.charAt(0).toUpperCase(),
         romUrl: `/proxy-rom/download/${itemID}/${encodeURIComponent(rom.name)}`,
       };
@@ -225,7 +227,7 @@ export const uploadGamesSnes = async (req, res) => {
 
     let count = 0;
     for (const juego of juegosNuevos) {
-      const exist = await Game.find({slug: juego.slug});
+      const exist = await Game.find({slug: juego.slug, system: 'snes'});
         if(exist.length == 0) {
         await Game.updateOne({ title: juego.title }, { $set: juego }, { upsert: true });
         count ++
