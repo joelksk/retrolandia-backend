@@ -1,4 +1,6 @@
 import express from 'express';
+import {updateGame} from '../controllers/gameController.js'
+import {uploadGameRoms, uploadDataRawg} from '../controllers/syncController.js'
 import { getPendingScores, 
         approveScore, 
         rejectScore,
@@ -8,6 +10,14 @@ import { getPendingScores,
         deleteSuggestion } from '../controllers/adminController.js';
 
 const router = express.Router();
+
+//GAMES
+router.put('/games/:id', updateGame);
+
+//SYNCS
+router.post('/sync-roms', uploadGameRoms);
+router.post('/update-rawg', uploadDataRawg);
+
 
 //RANKINGS
 router.get('/pending-ranking', getPendingScores);

@@ -23,9 +23,10 @@ const gameSchema = new mongoose.Schema({
   rankingType: { 
   type: String, 
   enum: ['score', 'time', 'none'], 
-  default: 'none' 
+  default: 'score' 
   },
   isActiveRanking: { type: Boolean, default: false },
+  isMultiplayer: {type: Boolean, default: false},
   createdAt: { type: Date, default: Date.now }
 });
 

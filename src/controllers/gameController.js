@@ -65,6 +65,33 @@ export const getGameBySlug = async (req, res) => {
     }
 };
 
+export const updateGame = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, image, description, isMultiplayer, rankingType } = req.body;
+
+    const gameEdited = await Game.findByIdAndUpdate(
+      id, 
+      {
+        title,
+        image,
+        description,
+        isMultiplayer: isMultiplayer || false,
+        rankingType: rankingType || 'score'
+      },
+      { new: true }
+    );
+
+    if (!gameEdited) {
+      return res.status(404).json({ message: "Game not found" });
+    }
+
+    res.json(gameEdited);
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
 export const incrementPlayCount = async (req, res) => {
   try {
     const { id } = req.params;
@@ -111,7 +138,7 @@ export const uploadGamesSega = async (req, res) => {
     
     const roms = response.data.files.filter(f => 
       f.name.endsWith('.smd')
-    ).slice(0, 20);
+    );
 
     const juegosNuevos = roms.map(rom => {
       const fileName = rom.name.split('/').pop();
@@ -159,7 +186,7 @@ export const uploadGamesNes = async (req, res) => {
     
     const roms = response.data.files.filter(f => 
       f.name.endsWith('.nes')
-    ).slice(0, 20);
+    );
 
     const juegosNuevos = roms.map(rom => {
       const fileName = rom.name.split('/').pop();
@@ -205,7 +232,7 @@ export const uploadGamesSnes = async (req, res) => {
     
     const roms = response.data.files.filter(f => 
       f.name.endsWith('.snes')
-    ).slice(0, 20);
+    );
 
     const juegosNuevos = roms.map(rom => {
       const fileName = rom.name.split('/').pop();
