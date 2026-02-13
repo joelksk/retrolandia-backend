@@ -25,7 +25,7 @@ const PLATFORMS = [
         library: 'retro-score-ksk-snes',
         ext: '.snes',
         platform: 'SNES',
-        platformId: 7,
+        platformId: 79,
         system: 'snes'
     }
 ]

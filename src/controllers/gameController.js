@@ -28,27 +28,34 @@ const RETRO_PLATFORMS = [
 
 export const getGames = async (req, res) => {
     try {
-        const { char, platform, genre, limit, sort } = req.query;
+        const { char, platform, genre, limit, sort, page = 1, full} = req.query;
         let query = {};
 
-        if (char) query.firstLetter = char.toUpperCase();
+        if (char && char !== 'All') query.firstLetter = char.toUpperCase();
         if (platform) query.platform = platform;
         if (genre) query.genre = genre;
 
+        //Paginacion
+        const itemsPerPage = parseInt(limit) || 15; 
+        const skip = (parseInt(page) - 1) * itemsPerPage;
+
         let apiQuery = Game.find(query);
-
-        if (sort === 'playCount') {
-          apiQuery = apiQuery.sort({ playCount: -1 });
-        } else {
-          apiQuery = apiQuery.sort({ title: 1 });
+        if (full !== 'true') {
+            apiQuery = apiQuery.select('title slug image platform firstLetter system playCount rating');
         }
 
-        if (limit) {
-          apiQuery = apiQuery.limit(parseInt(limit));
-        }
+        apiQuery = sort === 'playCount' ? apiQuery.sort({ playCount: -1 }) : apiQuery.sort({ title: 1 });
 
-        const games = await apiQuery;
-        res.json(games);
+        const games = await apiQuery.skip(skip).limit(itemsPerPage);
+
+        const totalGames = await Game.countDocuments(query);
+
+        res.json({
+            games,
+            totalPages: Math.ceil(totalGames / itemsPerPage),
+            currentPage: parseInt(page),
+            totalGames
+        });
     } catch (error) {
         res.status(500).json({ msg: error.message });
     }

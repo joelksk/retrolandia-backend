@@ -15,10 +15,18 @@ import reportRouter from './routes/reportRoutes.js'
 dotenv.config();
 const app = express();
 
+const allowedOrigins = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : [];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'));
+    }
+  },
+  credentials: true
 }));
-app.use(express.json());
 
 const connectDB = async () => {
   try {
