@@ -6,7 +6,7 @@ const BASE_URL = process.env.API_BASE || 'http://localhost:5000'
 
 const RETRO_PLATFORMS = [
   { id: 49,  name: "NES", slug: "nintendo-nes", system: "nes" },
-  { id: 7,   name: "SNES", slug: "nintendo-snes", system: "snes" },
+  { id: 79,   name: "SNES", slug: "nintendo-snes", system: "snes" },
   { id: 83,  name: "Nintendo 64", slug: "nintendo-64", system: "n64" },
   { id: 105, name: "GameCube", slug: "nintendo-gamecube", system: "gc" },
   { id: 26,  name: "Game Boy", slug: "game-boy", system: "gb" },
@@ -276,3 +276,14 @@ export const uploadGamesSnes = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 }
+
+
+//Buscamos todos los juegos para el Sitemap
+export const getSitemapData = async (req, res) => {
+    try {
+        const games = await Game.find({}, 'slug updatedAt').lean();
+        res.status(200).json(games);
+    } catch (error) {
+        res.status(500).json({ message: "Error al obtener datos del sitemap" });
+    }
+};

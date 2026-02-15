@@ -6,7 +6,8 @@ import {getGames,
         incrementPlayCount,
         rateGame,
         uploadGamesNes,
-        uploadGamesSnes } from '../controllers/gameController.js'
+        uploadGamesSnes,
+        getSitemapData } from '../controllers/gameController.js'
 
 router.get('/', getGames);
 router.get('/details/:slug', getGameBySlug);
@@ -19,5 +20,8 @@ router.post('/sync-snes', uploadGamesSnes);
 
 router.post('/:id/play', incrementPlayCount);
 router.post('/:id/rate', rateGame);
+
+//Sitemap
+router.get('/sitemap-data', getSitemapData);
 
 export default router

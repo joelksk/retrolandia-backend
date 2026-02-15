@@ -127,7 +127,7 @@ export const uploadDataRawg = async (req, res) => {
               description: textTranslated || "Descripcion no dispnible",
               image: detail.background_image,
               releaseYear: detail.released ? detail.released.split('-')[0] : 'N/A',
-              genre: detail.genres?.map(g => g.name) || [],
+              genres: detail.genres?.map(g => g.name) || [],
               developer: detail.developers?.[0]?.name || 'Unknown',
               "rating.external": externalRating
             }
