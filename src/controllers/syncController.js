@@ -127,7 +127,7 @@ export const uploadDataRawg = async (req, res) => {
               description: textTranslated || "Descripcion no dispnible",
               image: detail.background_image,
               releaseYear: detail.released ? detail.released.split('-')[0] : 'N/A',
-              genres: detail.genres?.map(g => g.name) || [],
+              genres: normalizeGenres(detail.genres?.map(g => g.name) || []),
               developer: detail.developers?.[0]?.name || 'Unknown',
               "rating.external": externalRating
             }
@@ -158,6 +158,85 @@ const translateDescription = async (textEN) => {
   } catch (error) {
     console.error("Error en Google Translate:", error);
     return textEN;
+  }
+}
+
+const normalizeGenres = (rawgGenres = []) => {
+  const genreDictionary = {
+    'Action': 'Acción',
+    'Adventure': 'Aventura',
+    'Platformer': 'Plataformas',
+    'Puzzle': 'Puzzle',
+    'RPG': 'RPG',
+    'Strategy': 'Estrategia',
+    'Shooter': 'Disparos',
+    'Fighting': 'Pelea',
+    'Simulation': 'Simulación',
+    'Racing': 'Carreras',
+    'Sports': 'Deportes',
+    'Massively Multiplayer': 'MMO',
+    'Family': 'Familiar',
+    'Arcade': 'Arcade',
+    'Indie': 'Indie',
+    'Casual': 'Casual'
+  };
+
+  const translated = rawgGenres.map(g => {
+    const name = typeof g === 'string' ? g : g.name;
+    return genreDictionary[name] || name;
+  });
+
+  return [...new Set(translated)];
+};
+
+
+export const completeGenres = async (req, res) => {
+  try {
+    const gamesToUpdate = await Game.find({ 
+      $or: [{ genres: [] }, { genres: { $exists: false } }] 
+    });
+
+    let count = 0;
+    for (const game of gamesToUpdate) {
+      const searchTitle = game.title.replace(/_/g, ' '); 
+
+      try {
+        const response = await axios.get(`https://api.rawg.io/api/games`, {
+          params: {
+            key: process.env.RAWG_API_KEY,
+            search: searchTitle,
+            platforms: game.platformId,
+            page_size: 1
+          }
+        });
+
+        if (response.data.results.length > 0) {
+          const gameData = response.data.results[0];
+          
+          const detailResp = await axios.get(`https://api.rawg.io/api/games/${gameData.id}?key=${process.env.RAWG_API_KEY}`);
+          const detail = detailResp.data;
+
+          await Game.findByIdAndUpdate(game._id, {
+            $set: {
+              genres: normalizeGenres(detail.genres?.map(g => g.name) || []),
+            }
+          });
+          console.log(`${searchTitle} actualizado con éxito.`);
+          count++;
+        } else {
+          console.log(`No se encontró nada para: "${searchTitle}" (ID Plataforma: ${game.platformId})`);
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 600));
+
+      } catch (err) {
+        console.error(`Error con ${game.title}:`, err.message);
+      }
+    }
+        res.json({ message: `Sincronización finalizada. ${count} juegos actualizados.` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 }
 

@@ -10,7 +10,7 @@ const gameSchema = new mongoose.Schema({
   system: { type: String, required: true },
   image: { type: String, default: ''},
   romUrl: { type: String, required: true },
-  genres: [String], default: [],
+  genres: {type: [String], default: []},
   firstLetter: String,
   developer: String,
   releaseYear: Number,

@@ -99,6 +99,27 @@ export const updateGame = async (req, res) => {
   }
 };
 
+export const getRelatedGames = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const game = await Game.findById(id);
+        if (!game) return res.status(404).json({ message: "Juego no encontrado" });
+
+        const related = await Game.find({
+            _id: { $ne: id },
+            genres: { $in: game.genres }
+        })
+        .select('title image slug genres playCount rating platform')
+        .sort({ playCount: -1 })
+        .limit(15);
+
+        res.json(related);
+    } catch (error) {
+        res.status(500).json({ message: "Error al obtener juegos relacionados", error: error.message });
+    }
+};
+
 export const incrementPlayCount = async (req, res) => {
   try {
     const { id } = req.params;

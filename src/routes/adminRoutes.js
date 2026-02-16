@@ -1,6 +1,6 @@
 import express from 'express';
-import {updateGame} from '../controllers/gameController.js'
-import {uploadGameRoms, uploadDataRawg} from '../controllers/syncController.js'
+import {updateGame, getRelatedGames} from '../controllers/gameController.js'
+import {uploadGameRoms, uploadDataRawg, completeGenres} from '../controllers/syncController.js'
 import { getPendingScores, 
         approveScore, 
         rejectScore,
@@ -13,10 +13,12 @@ const router = express.Router();
 
 //GAMES
 router.put('/games/:id', updateGame);
+router.get('/games/:id/related', getRelatedGames);
 
 //SYNCS
 router.post('/sync-roms', uploadGameRoms);
 router.post('/update-rawg', uploadDataRawg);
+// router.post('/update-rawg', completeGenres)
 
 
 //RANKINGS
