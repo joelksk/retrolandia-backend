@@ -7,10 +7,12 @@ import {getGames,
         rateGame,
         uploadGamesNes,
         uploadGamesSnes,
-        getSitemapData } from '../controllers/gameController.js'
+        getSitemapData, 
+        getRecentsGames} from '../controllers/gameController.js'
 
 router.get('/', getGames);
 router.get('/details/:slug', getGameBySlug);
+router.get('/recents', getRecentsGames);
 
 //Carga de Roms
 router.post('/sync-segaMD', uploadGamesSega);

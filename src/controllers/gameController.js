@@ -120,6 +120,26 @@ export const getRelatedGames = async (req, res) => {
     }
 };
 
+export const getRecentsGames = async (req, res) => {
+  try {
+        const { ids } = req.query;
+        if (!ids) return res.json([]);
+
+        const idArray = ids.split(',');
+
+        const games = await Game.find({ _id: { $in: idArray } })
+            .select('title image slug rating platform');
+
+        const sortedGames = idArray
+            .map(id => games.find(g => g._id.toString() === id))
+            .filter(g => g !== undefined);
+
+        res.json(sortedGames);
+    } catch (error) {
+        res.status(500).json({ message: "Error al recuperar historial" });
+    }
+}
+
 export const incrementPlayCount = async (req, res) => {
   try {
     const { id } = req.params;
